@@ -5,31 +5,20 @@ use std::collections::HashSet;
 use std::env;
 use std::fs;
 
-#[derive(Default)]
-struct ScanState {
-    current: i32,
-    seen: HashSet<i32>,
-    done: bool,
-}
-
 fn part1(frequencies: &[i32]) {
     let answer: i32 = frequencies.iter().sum();
     println!("part 1: {}", answer);
 }
 
 fn part2(frequencies: &[i32]) {
+    let mut seen = HashSet::new();
     let answer = frequencies
         .iter()
         .cycle()
-        .scan(ScanState::default(), |state, &value| {
-            if state.done {
-                return None;
-            }
-
-            state.current += value;
-            state.done = !state.seen.insert(state.current);
-            Some(state.current)
-        }).last()
+        .scan(0, |acc, value| {
+            *acc += value;
+            Some(*acc)
+        }).find_map(|value| seen.replace(value))
         .unwrap();
 
     println!("part 2: {}", answer);
