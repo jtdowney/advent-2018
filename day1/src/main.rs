@@ -5,14 +5,14 @@ use std::collections::HashSet;
 use std::env;
 use std::fs;
 
-fn part1(frequencies: &[i32]) {
-    let answer: i32 = frequencies.iter().sum();
+fn part1(input: &[i32]) {
+    let answer: i32 = input.iter().sum();
     println!("part 1: {}", answer);
 }
 
-fn part2(frequencies: &[i32]) {
+fn part2(input: &[i32]) {
     let mut seen = HashSet::new();
-    let answer = frequencies
+    let answer = input
         .iter()
         .cycle()
         .scan(0, |acc, value| {
@@ -26,13 +26,13 @@ fn part2(frequencies: &[i32]) {
 
 fn main() -> Result<(), Error> {
     let filename = env::args().nth(1).expect("No file provided");
-    let frequencies = fs::read_to_string(filename)?
+    let input = fs::read_to_string(filename)?
         .lines()
         .map(|line| line.parse())
         .collect::<Result<Vec<i32>, _>>()?;
 
-    part1(&frequencies);
-    part2(&frequencies);
+    part1(&input);
+    part2(&input);
 
     Ok(())
 }
