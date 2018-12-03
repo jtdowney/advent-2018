@@ -28,7 +28,7 @@ fn part1(input: &[String]) {
 fn part2(input: &[String]) {
     let answer: String = input
         .iter()
-        .cartesian_product(input)
+        .tuple_combinations()
         .filter(|(item1, item2)| item1 != item2)
         .find(|(item1, item2)| {
             let edits = item1
