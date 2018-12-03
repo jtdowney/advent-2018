@@ -66,7 +66,7 @@ fn part2(input: &[Claim]) {
             (claim.x..claim.x + claim.width)
                 .cartesian_product(claim.y..claim.y + claim.height)
                 .for_each(|(i, j)| {
-                    acc.entry((i, j)).or_insert(HashSet::new()).insert(claim.id);
+                    acc.entry((i, j)).or_insert(vec![]).push(claim.id);
                 });
 
             acc
@@ -76,10 +76,10 @@ fn part2(input: &[Claim]) {
         .cloned()
         .collect::<HashSet<u16>>();
 
-    let claims: HashSet<u16> = input.iter().map(|claim| claim.id).collect();
-    let answer = claims.difference(&repeated).nth(0).unwrap();
+    let all_claims: HashSet<u16> = input.iter().map(|claim| claim.id).collect();
+    let answer = all_claims.difference(&repeated).nth(0).unwrap();
 
-    println!("part 2: {:?}", answer);
+    println!("part 2: {}", answer);
 }
 
 fn main() -> Result<(), Error> {
