@@ -26,31 +26,24 @@ fn part1(input: &[String]) {
 }
 
 fn part2(input: &[String]) {
-    let item_chars = input
+    let answer: String = input
         .iter()
-        .map(|item| item.chars().collect())
-        .collect::<Vec<Vec<char>>>();
-    let answer: String = item_chars
-        .iter()
-        .cartesian_product(item_chars.iter())
+        .cartesian_product(input)
         .filter(|(item1, item2)| item1 != item2)
-        .find_map(|(item1, item2)| {
+        .find(|(item1, item2)| {
             let edits = item1
-                .iter()
-                .zip(item2.iter())
+                .chars()
+                .zip(item2.chars())
                 .filter(|(c1, c2)| c1 != c2)
                 .count();
-            if edits == 1 {
-                let common = item1
-                    .iter()
-                    .zip(item2.iter())
-                    .filter(|(c1, c2)| c1 == c2)
-                    .map(|(c, _)| c)
-                    .collect();
-                Some(common)
-            } else {
-                None
-            }
+            edits == 1
+        }).map(|(item1, item2)| {
+            item1
+                .chars()
+                .zip(item2.chars())
+                .filter(|(c1, c2)| c1 == c2)
+                .map(|(c, _)| c)
+                .collect()
         }).unwrap();
 
     println!("part 2: {}", answer);
