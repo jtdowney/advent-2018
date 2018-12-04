@@ -8,7 +8,7 @@ use std::env;
 use std::fs;
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
+#[derive(Debug, PartialEq)]
 struct Claim {
     id: u16,
     x: u16,
