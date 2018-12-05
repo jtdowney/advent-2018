@@ -1,7 +1,4 @@
-extern crate itertools;
-
-use itertools::Itertools;
-use std::collections::LinkedList;
+use std::collections::VecDeque;
 use std::env;
 use std::fs;
 
@@ -19,38 +16,39 @@ impl PolymerUnit for char {
     }
 }
 
-fn fully_react(input: &[char]) -> usize {
-    let mut input: LinkedList<char> = input.iter().cloned().collect();
+fn fully_react(mut input: VecDeque<char>) -> usize {
+    'outer: loop {
+        for i in 0..input.len() {
+            let current = input[i];
+            if let Some(&next) = input.get(i + 1) {
+                if current.is_reacting(next) {
+                    let _ = input.drain(i..=i + 1);
+                    continue 'outer;
+                }
+            }
+        }
 
-    while let Some(p) = input
-        .iter()
-        .tuple_windows()
-        .position(|(a, b)| a.is_reacting(*b))
-    {
-        let mut rest = input.split_off(p);
-        let _ = rest.pop_front();
-        let _ = rest.pop_front();
-        input.append(&mut rest);
+        break;
     }
 
     input.len()
 }
 
-fn part1(input: &[char]) {
+fn part1(input: VecDeque<char>) {
     let answer = fully_react(input);
     println!("part 1: {}", answer);
 }
 
-fn part2(input: &[char]) {
+fn part2(input: &VecDeque<char>) {
     let answer = (97u8..=122)
         .map(|n| n as char)
         .map(|c| {
             input
-                .to_owned()
-                .into_iter()
-                .filter(|&u| u != c && u.to_ascii_lowercase() != c)
-                .collect::<Vec<char>>()
-        }).map(|input| fully_react(&input))
+                .iter()
+                .filter(|&u| *u != c && u.to_ascii_lowercase() != c)
+                .cloned()
+                .collect::<VecDeque<char>>()
+        }).map(fully_react)
         .min()
         .unwrap();
     println!("part 2: {}", answer);
@@ -62,8 +60,8 @@ fn main() {
         .expect("Unable to read file")
         .trim()
         .chars()
-        .collect::<Vec<char>>();
+        .collect::<VecDeque<char>>();
 
-    part1(&input);
+    part1(input.clone());
     part2(&input);
 }
