@@ -5,6 +5,11 @@ use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
 
+struct Work {
+    step: char,
+    completion_time: usize,
+}
+
 fn completion_time(step: char) -> usize {
     (step as usize) - 64 + 60
 }
@@ -56,7 +61,7 @@ fn part2(
 ) {
     let mut completed = HashSet::new();
     let mut ready = ready.clone();
-    let mut workers: [Option<(char, usize)>; 5] = Default::default();
+    let mut workers: [Option<Work>; 5] = Default::default();
 
     let max_steps = step_blocks
         .keys()
@@ -67,7 +72,10 @@ fn part2(
     for t in 0.. {
         for worker in workers.iter_mut() {
             match worker {
-                Some((step, done)) if t == *done => {
+                Some(Work {
+                    step,
+                    completion_time,
+                }) if t == *completion_time => {
                     completed.insert(*step);
 
                     let children = step_blocks
@@ -90,8 +98,11 @@ fn part2(
 
             if let Some(&step) = ready.iter().min() {
                 ready.remove(&step);
-                let time = t + completion_time(step);
-                *worker = Some((step, time));
+                let completion_time = t + completion_time(step);
+                *worker = Some(Work {
+                    step,
+                    completion_time,
+                });
             } else {
                 *worker = None;
             }
