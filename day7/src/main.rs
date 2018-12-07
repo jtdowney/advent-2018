@@ -56,7 +56,7 @@ fn part2(
 ) {
     let mut completed = HashSet::new();
     let mut ready = ready.clone();
-    let mut workers: [Option<(char, usize)>; 15] = Default::default();
+    let mut workers: [Option<(char, usize)>; 5] = Default::default();
 
     let max_steps = step_blocks
         .keys()
