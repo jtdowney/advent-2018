@@ -5,22 +5,27 @@ use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
 
+fn completion_time(step: char) -> usize {
+    (step as usize) - 64 + 60
+}
+
 fn parse_step(source: &str) -> (char, char) {
     let mut parts = source.split_whitespace();
     let id = parts.nth(1).and_then(|p| p.chars().nth(0)).unwrap();
-    let blocks = parts.nth(5).and_then(|p| p.chars().nth(0)).unwrap();
+    let block = parts.nth(5).and_then(|p| p.chars().nth(0)).unwrap();
 
-    (id, blocks)
+    (id, block)
 }
 
 fn part1(
     step_blocks: &HashMap<char, Vec<char>>,
     step_blocked_by: &HashMap<char, Vec<char>>,
-    ready: &[char],
+    ready: &HashSet<char>,
 ) {
-    let mut ready = ready.iter().cloned().collect::<HashSet<char>>();
     let mut answer = String::new();
     let mut completed = HashSet::new();
+    let mut ready = ready.clone();
+
     while let Some(&step) = ready.iter().min() {
         answer.push(step);
         ready.remove(&step);
@@ -42,18 +47,15 @@ fn part1(
     println!("part 1: {}", answer);
 }
 
-fn completion_time(step: char) -> usize {
-    (step as usize) - 64 + 60
-}
-
 fn part2(
     step_blocks: &HashMap<char, Vec<char>>,
     step_blocked_by: &HashMap<char, Vec<char>>,
-    ready: &[char],
+    ready: &HashSet<char>,
 ) {
+    let mut completed = HashSet::new();
+    let mut ready = ready.clone();
     let mut workers: [Option<(char, usize)>; 15] = Default::default();
-    let mut ready = ready.iter().cloned().collect::<HashSet<char>>();
-    let mut completed: HashSet<char> = HashSet::new();
+
     let max_steps = step_blocks
         .keys()
         .chain(step_blocked_by.keys())
@@ -108,13 +110,10 @@ fn main() -> Result<(), Error> {
     let mut step_blocks = HashMap::new();
     let mut step_blocked_by = HashMap::new();
 
-    for &(step, blocks) in &input {
-        step_blocks
-            .entry(step)
-            .or_insert_with(Vec::new)
-            .push(blocks);
+    for &(step, block) in &input {
+        step_blocks.entry(step).or_insert_with(Vec::new).push(block);
         step_blocked_by
-            .entry(blocks)
+            .entry(block)
             .or_insert_with(Vec::new)
             .push(step);
     }
@@ -123,7 +122,7 @@ fn main() -> Result<(), Error> {
         .iter()
         .filter(|(step, _)| !step_blocked_by.contains_key(step))
         .map(|&(step, _)| step)
-        .collect::<Vec<char>>();
+        .collect::<HashSet<char>>();
 
     part1(&step_blocks, &step_blocked_by, &ready);
     part2(&step_blocks, &step_blocked_by, &ready);
