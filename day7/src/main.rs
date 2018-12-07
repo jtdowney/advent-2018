@@ -31,15 +31,17 @@ fn part1(
         ready.remove(&step);
         completed.insert(step);
 
-        if let Some(blocks) = step_blocks.get(&step) {
-            for &unblocked in blocks {
-                if let Some(other_blocks) = step_blocked_by.get(&unblocked) {
-                    if other_blocks.iter().all(|b| completed.contains(b)) {
-                        ready.insert(unblocked);
-                    }
-                } else {
-                    ready.insert(unblocked);
+        let children = step_blocks
+            .get(&step)
+            .map(|c| c.as_slice())
+            .unwrap_or_default();
+        for &child in children {
+            if let Some(parents) = step_blocked_by.get(&child) {
+                if parents.iter().all(|p| completed.contains(p)) {
+                    ready.insert(child);
                 }
+            } else {
+                ready.insert(child);
             }
         }
     }
@@ -68,15 +70,17 @@ fn part2(
                 Some((step, done)) if t == *done => {
                     completed.insert(*step);
 
-                    if let Some(blocks) = step_blocks.get(&step) {
-                        for &unblocked in blocks {
-                            if let Some(other_blocks) = step_blocked_by.get(&unblocked) {
-                                if other_blocks.iter().all(|b| completed.contains(b)) {
-                                    ready.insert(unblocked);
-                                }
-                            } else {
-                                ready.insert(unblocked);
+                    let children = step_blocks
+                        .get(&step)
+                        .map(|c| c.as_slice())
+                        .unwrap_or_default();
+                    for &child in children {
+                        if let Some(parents) = step_blocked_by.get(&child) {
+                            if parents.iter().all(|p| completed.contains(p)) {
+                                ready.insert(child);
                             }
+                        } else {
+                            ready.insert(child);
                         }
                     }
                 }
