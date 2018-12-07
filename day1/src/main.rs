@@ -1,8 +1,6 @@
 extern crate failure;
-extern crate itertools;
 
 use failure::Error;
-use itertools::{FoldWhile, Itertools};
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -16,14 +14,15 @@ fn part2(input: &[i32]) {
     let (answer, _) = input
         .iter()
         .cycle()
-        .fold_while((0, HashSet::new()), |(current, mut seen), value| {
+        .try_fold((0, HashSet::new()), |(current, mut seen), value| {
             let current = current + value;
             if seen.insert(current) {
-                FoldWhile::Continue((current, seen))
+                Ok((current, seen))
             } else {
-                FoldWhile::Done((current, seen))
+                Err((current, seen))
             }
-        }).into_inner();
+        })
+        .unwrap_err();
 
     println!("part 2: {}", answer);
 }
