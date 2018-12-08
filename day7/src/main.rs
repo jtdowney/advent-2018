@@ -1,6 +1,3 @@
-extern crate failure;
-
-use failure::Error;
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
@@ -115,9 +112,10 @@ fn part2(
     }
 }
 
-fn main() -> Result<(), Error> {
+fn main() {
     let filename = env::args().nth(1).expect("No file provided");
-    let input = fs::read_to_string(filename)?
+    let input = fs::read_to_string(filename)
+        .expect("File to read")
         .lines()
         .map(parse_step)
         .collect::<Vec<(char, char)>>();
@@ -141,6 +139,4 @@ fn main() -> Result<(), Error> {
 
     part1(&step_blocks, &step_blocked_by, &ready);
     part2(&step_blocks, &step_blocked_by, &ready);
-
-    Ok(())
 }

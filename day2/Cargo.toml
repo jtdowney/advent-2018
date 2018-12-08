@@ -4,5 +4,4 @@ version = "0.1.0"
 authors = ["John Downey <jdowney@gmail.com>"]
 
 [dependencies]
-failure = "0.1.3"
 itertools = "0.7.11"

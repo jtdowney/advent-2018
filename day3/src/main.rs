@@ -1,11 +1,10 @@
-extern crate failure;
 extern crate itertools;
 
-use failure::Error;
 use itertools::Itertools;
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
+use std::num::ParseIntError;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
@@ -18,7 +17,7 @@ struct Claim {
 }
 
 impl FromStr for Claim {
-    type Err = Error;
+    type Err = ParseIntError;
 
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         let mut parts = source.split_whitespace();
@@ -52,7 +51,8 @@ fn part1(input: &[Claim]) {
                 });
 
             acc
-        }).values()
+        })
+        .values()
         .filter(|&n| *n > 1)
         .count();
 
@@ -70,7 +70,8 @@ fn part2(input: &[Claim]) {
                 });
 
             acc
-        }).values()
+        })
+        .values()
         .filter(|claims| claims.len() > 1)
         .flatten()
         .cloned()
@@ -82,15 +83,15 @@ fn part2(input: &[Claim]) {
     println!("part 2: {}", answer);
 }
 
-fn main() -> Result<(), Error> {
+fn main() {
     let filename = env::args().nth(1).expect("No file provided");
-    let input = fs::read_to_string(filename)?
+    let input = fs::read_to_string(filename)
+        .expect("File to read")
         .lines()
         .map(|line| line.parse())
-        .collect::<Result<Vec<Claim>, _>>()?;
+        .collect::<Result<Vec<Claim>, _>>()
+        .expect("Unable to parse input");
 
     part1(&input);
     part2(&input);
-
-    Ok(())
 }

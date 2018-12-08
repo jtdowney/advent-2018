@@ -1,9 +1,7 @@
-extern crate failure;
-
-use failure::Error;
 use std::collections::HashMap;
 use std::env;
 use std::fs;
+use std::num::ParseIntError;
 use std::str::FromStr;
 
 #[derive(Debug, Copy, Clone)]
@@ -24,7 +22,7 @@ struct Event {
 }
 
 impl FromStr for Event {
-    type Err = Error;
+    type Err = ParseIntError;
 
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         let mut parts = source.split_whitespace();
@@ -83,12 +81,14 @@ fn part2(schedule: &HashMap<u16, HashMap<u8, usize>>) {
     println!("part 2: {}", answer);
 }
 
-fn main() -> Result<(), Error> {
+fn main() {
     let filename = env::args().nth(1).expect("No file provided");
-    let mut input = fs::read_to_string(filename)?
+    let mut input = fs::read_to_string(filename)
+        .expect("File to read")
         .lines()
         .map(|line| line.parse())
-        .collect::<Result<Vec<Event>, _>>()?;
+        .collect::<Result<Vec<Event>, _>>()
+        .expect("Unable to parse input");
 
     input.sort_by_key(|e| (e.year, e.month, e.day, e.hour, e.minute));
 
@@ -112,6 +112,4 @@ fn main() -> Result<(), Error> {
 
     part1(&schedule);
     part2(&schedule);
-
-    Ok(())
 }

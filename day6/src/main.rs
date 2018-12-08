@@ -1,11 +1,10 @@
-extern crate failure;
 extern crate itertools;
 
-use failure::Error;
 use itertools::{iproduct, Itertools};
 use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
+use std::num::ParseIntError;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq, Copy, Clone, Eq, Hash, PartialOrd, Ord)]
@@ -19,7 +18,7 @@ impl Point {
 }
 
 impl FromStr for Point {
-    type Err = Error;
+    type Err = ParseIntError;
 
     fn from_str(source: &str) -> Result<Self, Self::Err> {
         let mut parts = source.split(',');
@@ -97,15 +96,15 @@ fn part2(input: &[Point]) {
     println!("part 2: {}", answer);
 }
 
-fn main() -> Result<(), Error> {
+fn main() {
     let filename = env::args().nth(1).expect("No file provided");
-    let input = fs::read_to_string(filename)?
+    let input = fs::read_to_string(filename)
+        .expect("File to read")
         .lines()
         .map(|line| line.parse())
-        .collect::<Result<Vec<Point>, _>>()?;
+        .collect::<Result<Vec<Point>, _>>()
+        .expect("Unable to parse input");
 
     part1(&input);
     part2(&input);
-
-    Ok(())
 }

@@ -1,6 +1,3 @@
-extern crate failure;
-
-use failure::Error;
 use std::collections::HashSet;
 use std::env;
 use std::fs;
@@ -27,15 +24,15 @@ fn part2(input: &[i32]) {
     println!("part 2: {}", answer);
 }
 
-fn main() -> Result<(), Error> {
+fn main() {
     let filename = env::args().nth(1).expect("No file provided");
-    let input = fs::read_to_string(filename)?
+    let input = fs::read_to_string(filename)
+        .expect("File to read")
         .lines()
         .map(|line| line.parse())
-        .collect::<Result<Vec<i32>, _>>()?;
+        .collect::<Result<Vec<i32>, _>>()
+        .expect("Unable to parse input");
 
     part1(&input);
     part2(&input);
-
-    Ok(())
 }
