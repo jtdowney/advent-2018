@@ -66,7 +66,7 @@ fn part2(input: &[Claim]) {
             (claim.x..claim.x + claim.width)
                 .cartesian_product(claim.y..claim.y + claim.height)
                 .for_each(|(i, j)| {
-                    acc.entry((i, j)).or_insert(vec![]).push(claim.id);
+                    acc.entry((i, j)).or_insert_with(Vec::new).push(claim.id);
                 });
 
             acc
