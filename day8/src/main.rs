@@ -20,13 +20,7 @@ impl Node {
         } else {
             self.metadata
                 .iter()
-                .filter(|&i| *i != 0)
-                .map(|i| {
-                    self.children
-                        .get(i - 1)
-                        .map(|c| c.value())
-                        .unwrap_or_default()
-                })
+                .filter_map(|i| self.children.get(i - 1).map(|c| c.value()))
                 .sum()
         }
     }
