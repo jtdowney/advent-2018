@@ -48,7 +48,8 @@ fn part2(input: &VecDeque<char>) {
                 .filter(|&u| *u != c && u.to_ascii_lowercase() != c)
                 .cloned()
                 .collect::<VecDeque<char>>()
-        }).map(fully_react)
+        })
+        .map(fully_react)
         .min()
         .unwrap();
     println!("part 2: {}", answer);
