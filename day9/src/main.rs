@@ -10,23 +10,20 @@ fn play(players: usize, marbles: usize) -> HashMap<usize, usize> {
     let mut scores = HashMap::new();
 
     for (marble, player) in (1..=marbles).zip((1..=players).cycle()) {
-        match marble {
-            m if m % 23 == 0 => {
-                let mut tail = circle.split_off(circle.len() - 7);
-                let scored = tail.pop_front().unwrap();
-                tail.append(&mut circle);
-                circle = tail;
+        if marble % 23 == 0 {
+            let mut tail = circle.split_off(circle.len() - 7);
+            let scored = tail.pop_front().unwrap();
+            tail.append(&mut circle);
+            circle = tail;
 
-                *scores.entry(player).or_default() += marble + scored;
+            *scores.entry(player).or_default() += marble + scored;
+        } else {
+            for _ in 0..2 {
+                let current = circle.pop_front().unwrap();
+                circle.push_back(current);
             }
-            _ => {
-                for _ in 0..2 {
-                    let current = circle.pop_front().unwrap();
-                    circle.push_back(current);
-                }
 
-                circle.push_front(marble);
-            }
+            circle.push_front(marble);
         }
     }
 
