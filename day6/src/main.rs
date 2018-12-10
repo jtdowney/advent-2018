@@ -49,7 +49,8 @@ fn part1(input: &[Point]) {
                 .map(|p| (p, point.distance(p)))
                 .sorted_by_key(|&(_, d)| d);
 
-            match (closest[0], closest[1]) {
+            let elements = closest.as_slice();
+            match (elements[0], elements[1]) {
                 ((_, d1), (_, d2)) if d1 == d2 => (point, None),
                 ((p, _), _) => (point, Some(p)),
             }

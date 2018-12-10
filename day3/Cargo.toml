@@ -4,4 +4,4 @@ version = "0.1.0"
 authors = ["John Downey <jdowney@gmail.com>"]
 
 [dependencies]
-itertools = {git="https://github.com/bluss/rust-itertools"}
+itertools = "0.8.0"
