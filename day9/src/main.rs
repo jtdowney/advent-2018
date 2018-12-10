@@ -17,16 +17,15 @@ fn play(players: usize, last_points: usize) -> HashMap<usize, usize> {
                 tail.append(&mut circle);
                 circle = tail;
 
-                *scores.entry(player).or_default() += m + other;
+                *scores.entry(player).or_default() += marble + other;
             }
             _ => {
-                let current = circle.pop_front().unwrap();
-                let next = circle.pop_front();
-                circle.push_front(marble);
-                circle.push_back(current);
-                if let Some(next) = next {
-                    circle.push_back(next);
+                for _ in 0..2 {
+                    let current = circle.pop_front().unwrap();
+                    circle.push_back(current);
                 }
+
+                circle.push_front(marble);
             }
         }
     }
