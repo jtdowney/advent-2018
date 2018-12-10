@@ -1,20 +1,23 @@
 extern crate regex;
 
 use regex::Regex;
-use std::collections::{HashMap, LinkedList};
+use std::collections::{HashMap, VecDeque};
 use std::env;
 use std::fs;
 
 fn play(players: usize, marbles: usize) -> HashMap<usize, usize> {
-    let mut circle = [0].iter().cloned().collect::<LinkedList<usize>>();
     let mut scores = HashMap::new();
+    let mut circle = VecDeque::with_capacity(marbles);
+    circle.push_front(0);
 
     for (marble, player) in (1..=marbles).zip((1..=players).cycle()) {
         if marble % 23 == 0 {
             let mut tail = circle.split_off(circle.len() - 7);
             let scored = tail.pop_front().unwrap();
-            tail.append(&mut circle);
-            circle = tail;
+
+            for &item in tail.iter().rev() {
+                circle.push_front(item);
+            }
 
             *scores.entry(player).or_default() += marble + scored;
         } else {
