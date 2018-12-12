@@ -1,50 +1,40 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
 
-fn calculate(rules: &HashMap<String, char>, state: &HashMap<isize, char>) -> HashMap<isize, char> {
-    let start = state.keys().min().unwrap() - 1;
-    let end = state.keys().max().unwrap() + 1;
+fn calculate(rules: &HashMap<String, char>, state: &HashSet<isize>) -> HashSet<isize> {
+    let start = state.iter().min().unwrap() - 1;
+    let end = state.iter().max().unwrap() + 1;
     (start..=end)
-        .map(|i| {
+        .filter(|i| {
             let lookup = (i - 2..=i + 2)
-                .map(|j| state.get(&j).cloned().unwrap_or('.'))
+                .map(|j| state.get(&j).cloned().map(|_| '#').unwrap_or('.'))
                 .collect::<String>();
             match rules.get(&lookup) {
-                Some(&next) => (i, next),
-                None => (i, '.'),
+                Some(&next) => next == '#',
+                None => false,
             }
         })
-        .filter(|&(_, next)| next == '#')
         .collect()
 }
 
-fn part1(rules: &HashMap<String, char>, initial_state: &HashMap<isize, char>) {
+fn part1(rules: &HashMap<String, char>, initial_state: &HashSet<isize>) {
     let state = (0..20).fold(initial_state.clone(), |last_state, _| {
         calculate(rules, &last_state)
     });
 
-    let answer = state
-        .iter()
-        .filter(|&(_, &c)| c == '#')
-        .map(|(i, _)| i)
-        .sum::<isize>();
+    let answer = state.iter().sum::<isize>();
 
     println!("part 1: {}", answer);
 }
 
-fn part2(rules: &HashMap<String, char>, initial_state: &HashMap<isize, char>) {
+fn part2(rules: &HashMap<String, char>, initial_state: &HashSet<isize>) {
     let (generation, growth, sum, _) = (1..)
         .try_fold(
             (0, 0, 0, initial_state.clone()),
             |(_, last_growth, last_sum, last_state), g| {
                 let state = calculate(rules, &last_state);
-                let sum = state
-                    .iter()
-                    .filter(|&(_, &c)| c == '#')
-                    .map(|(i, _)| i)
-                    .sum::<isize>();
-
+                let sum = state.iter().sum::<isize>();
                 let growth = sum - last_sum;
                 if last_growth == growth {
                     Err((g, growth, sum, state))
@@ -73,8 +63,8 @@ fn main() {
                 state
                     .chars()
                     .enumerate()
-                    .map(|(i, c)| (i as isize, c))
-                    .collect::<HashMap<isize, char>>()
+                    .filter_map(|(i, c)| if c == '#' { Some(i as isize) } else { None })
+                    .collect::<HashSet<isize>>()
             })
         })
         .unwrap();
