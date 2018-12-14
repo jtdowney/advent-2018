@@ -22,23 +22,23 @@ impl Iterator for Scoreboard {
     type Item = char;
 
     fn next(&mut self) -> Option<Self::Item> {
-        if let Some(&score) = self.scores.get(self.position) {
-            self.position += 1;
-            return Some(score);
+        if self.position >= self.scores.len() {
+            let (left, right) = self.workers;
+            let left_score = self.scores[left].to_digit(10).unwrap() as usize;
+            let right_score = self.scores[right].to_digit(10).unwrap() as usize;
+            let score = left_score + right_score;
+            self.scores.extend(score.to_string().chars());
+
+            let left = (left + left_score + 1) % self.scores.len();
+            let right = (right + right_score + 1) % self.scores.len();
+
+            self.workers = (left, right);
         }
 
-        let (left, right) = self.workers;
-        let left_score = self.scores[left].to_digit(10).unwrap() as usize;
-        let right_score = self.scores[right].to_digit(10).unwrap() as usize;
-        let score = left_score + right_score;
-        self.scores.extend(score.to_string().chars());
+        let item = self.scores.get(self.position).cloned();
+        self.position += 1;
 
-        let left = (left + left_score + 1) % self.scores.len();
-        let right = (right + right_score + 1) % self.scores.len();
-
-        self.workers = (left, right);
-
-        self.next()
+        item
     }
 }
 
