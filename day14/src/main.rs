@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+
 const INPUT: usize = 110_201;
 
 struct Scoreboard {
@@ -47,26 +49,25 @@ fn part1() {
 }
 
 fn part2() {
-    let mut scoreboard = Scoreboard::default();
-    let input_str = INPUT.to_string();
+    let scoreboard = Scoreboard::default();
+    let input_chars = INPUT.to_string().chars().collect::<Vec<char>>();
+    let (answer, _) = scoreboard
+        .enumerate()
+        .try_fold((0, VecDeque::new()), |(_, mut acc), (i, score)| {
+            acc.push_back(score);
+            if acc.len() > input_chars.len() {
+                let _ = acc.pop_front();
+            }
 
-    loop {
-        let _ = scoreboard.next();
-        let tail = scoreboard
-            .scores
-            .iter()
-            .rev()
-            .take(input_str.len() + 2)
-            .collect::<String>()
-            .chars()
-            .rev()
-            .collect::<String>();
-        if let Some(i) = tail.find(&input_str) {
-            let answer = scoreboard.scores.len() - tail.len() + i;
-            println!("part 2: {}", answer);
-            break;
-        }
-    }
+            if acc == input_chars {
+                Err((i - input_chars.len() + 1, acc))
+            } else {
+                Ok((i, acc))
+            }
+        })
+        .unwrap_err();
+
+    println!("part 2: {}", answer);
 }
 
 fn main() {
