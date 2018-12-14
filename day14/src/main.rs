@@ -1,48 +1,59 @@
-const INPUT: usize = 110201;
+const INPUT: usize = 110_201;
 
-fn part1() {
-    let mut scores = vec!['3', '7'];
-    let mut workers = (0, 1);
+struct Scoreboard {
+    position: usize,
+    scores: Vec<char>,
+    workers: (usize, usize),
+}
 
-    loop {
-        let (left, right) = workers;
-        let left_score = scores[left].to_digit(10).unwrap() as usize;
-        let right_score = scores[right].to_digit(10).unwrap() as usize;
-        let score = left_score + right_score;
-        scores.extend(score.to_string().chars());
-
-        let left = (left + left_score + 1) % scores.len();
-        let right = (right + right_score + 1) % scores.len();
-
-        workers = (left, right);
-
-        if scores.len() >= INPUT + 10 {
-            break;
+impl Scoreboard {
+    fn new(scores: &[char]) -> Self {
+        Scoreboard {
+            position: 0,
+            scores: scores.to_vec(),
+            workers: (0, 1),
         }
     }
+}
 
-    let answer = scores.iter().skip(INPUT).take(10).collect::<String>();
+impl Iterator for Scoreboard {
+    type Item = char;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(&score) = self.scores.get(self.position) {
+            self.position += 1;
+            return Some(score);
+        }
+
+        let (left, right) = self.workers;
+        let left_score = self.scores[left].to_digit(10).unwrap() as usize;
+        let right_score = self.scores[right].to_digit(10).unwrap() as usize;
+        let score = left_score + right_score;
+        self.scores.extend(score.to_string().chars());
+
+        let left = (left + left_score + 1) % self.scores.len();
+        let right = (right + right_score + 1) % self.scores.len();
+
+        self.workers = (left, right);
+
+        self.next()
+    }
+}
+
+fn part1() {
+    let scoreboard = Scoreboard::new(&['3', '7']);
+    let answer = scoreboard.skip(INPUT).take(10).collect::<String>();
     println!("part 1: {}", answer);
 }
 
 fn part2() {
-    let mut scores = vec!['3', '7'];
-    let mut workers = (0, 1);
+    let mut scoreboard = Scoreboard::new(&['3', '7']);
     let input_str = INPUT.to_string();
 
     loop {
-        let (left, right) = workers;
-        let left_score = scores[left].to_digit(10).unwrap() as usize;
-        let right_score = scores[right].to_digit(10).unwrap() as usize;
-        let score = left_score + right_score;
-        scores.extend(score.to_string().chars());
-
-        let left = (left + left_score + 1) % scores.len();
-        let right = (right + right_score + 1) % scores.len();
-
-        workers = (left, right);
-
-        let tail = scores
+        let _ = scoreboard.next();
+        let tail = scoreboard
+            .scores
             .iter()
             .rev()
             .take(input_str.len() + 2)
@@ -51,7 +62,7 @@ fn part2() {
             .rev()
             .collect::<String>();
         if let Some(i) = tail.find(&input_str) {
-            let answer = scores.len() - tail.len() + i;
+            let answer = scoreboard.scores.len() - tail.len() + i;
             println!("part 2: {}", answer);
             break;
         }
