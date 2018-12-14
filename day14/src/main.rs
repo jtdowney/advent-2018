@@ -6,11 +6,11 @@ struct Scoreboard {
     workers: (usize, usize),
 }
 
-impl Scoreboard {
-    fn new(scores: &[char]) -> Self {
+impl Default for Scoreboard {
+    fn default() -> Self {
         Scoreboard {
             position: 0,
-            scores: scores.to_vec(),
+            scores: vec!['3', '7'],
             workers: (0, 1),
         }
     }
@@ -41,13 +41,13 @@ impl Iterator for Scoreboard {
 }
 
 fn part1() {
-    let scoreboard = Scoreboard::new(&['3', '7']);
+    let scoreboard = Scoreboard::default();
     let answer = scoreboard.skip(INPUT).take(10).collect::<String>();
     println!("part 1: {}", answer);
 }
 
 fn part2() {
-    let mut scoreboard = Scoreboard::new(&['3', '7']);
+    let mut scoreboard = Scoreboard::default();
     let input_str = INPUT.to_string();
 
     loop {
