@@ -1,7 +1,5 @@
-#![allow(dead_code)]
-
 use regex::Regex;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::env;
 use std::fs;
 
@@ -115,61 +113,64 @@ fn part2(examples: &[Example], program: &[Vec<u8>]) {
             |Example {
                  before,
                  after,
-                 instruction: (o, a, b, c),
+                 instruction: (code, a, b, c),
              }| {
                 (
-                    *o,
+                    *code,
                     ALL_OPCODES
                         .iter()
                         .map(|opcode| (opcode, Instruction(*opcode, *a, *b, *c)))
                         .filter(|(_, instruction)| &instruction.apply(before) == after)
-                        .fold(HashMap::new(), |mut acc, (&opcode, _)| {
-                            *acc.entry(opcode).or_default() += 1;
-                            acc
-                        }),
+                        .map(|(&opcode, _)| opcode)
+                        .collect(),
                 )
             },
         )
-        .collect::<HashMap<u8, HashMap<Opcode, usize>>>();
+        .collect::<HashMap<u8, HashSet<Opcode>>>();
 
-    let mut opcodes = HashMap::new();
+    let mut opcode_mapping = HashMap::new();
     loop {
-        for o in opcodes.keys() {
-            candidates.remove(o);
+        for code in opcode_mapping.keys() {
+            candidates.remove(code);
         }
 
         if candidates.is_empty() {
             break;
         }
 
-        let found = candidates
+        let used_opcodes = opcode_mapping
+            .values()
+            .cloned()
+            .collect::<HashSet<Opcode>>();
+        let filtered_candidates = candidates
             .iter()
-            .map(|(o, c)| {
+            .map(|(code, opcodes)| {
                 (
-                    o,
-                    c.keys()
-                        .filter(|&opcode| !opcodes.values().any(|v| v == opcode))
+                    code,
+                    opcodes
+                        .iter()
+                        .filter(|opcode| !used_opcodes.contains(opcode))
                         .cloned()
                         .collect::<Vec<Opcode>>(),
                 )
             })
-            .filter(|(_, c)| c.len() == 1)
-            .map(|(o, c)| (*o, c))
-            .collect::<Vec<(u8, Vec<Opcode>)>>();
-        for (o, opcode) in found {
-            opcodes.insert(o, opcode[0]);
-        }
+            .filter(|(_, opcodes)| opcodes.len() == 1)
+            .map(|(code, opcodes)| (*code, opcodes[0]))
+            .collect::<HashMap<u8, Opcode>>();
+
+        opcode_mapping.extend(filtered_candidates);
     }
 
-    let mut registers = vec![0, 0, 0, 0];
     let instructions = program.iter().map(|args| {
         Instruction(
-            opcodes[&args[0]],
+            opcode_mapping[&args[0]],
             args[1] as usize,
             args[2] as usize,
             args[3] as usize,
         )
     });
+
+    let mut registers = vec![0, 0, 0, 0];
     for instruction in instructions {
         registers = instruction.apply(&registers);
     }
